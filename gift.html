@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Valentine's Puzzle</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+            background: pink;
+            overflow: hidden;
+            position: relative;
+        }
+        #puzzle-container {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 5px;
+            width: 320px;
+            margin: auto;
+            position: relative;
+            z-index: 2;
+            transition: opacity 1s ease-in-out;
+        }
+        .puzzle-piece {
+            width: 100px;
+            height: 100px;
+            border: 1px solid #fff;
+            background-size: 300px 300px;
+            cursor: grab;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .puzzle-piece:active {
+            transform: scale(1.1);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+        #message-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 300px;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+        }
+        #message {
+            font-size: 20px;
+            color: red;
+            font-weight: bold;
+        }
+        .show-message {
+            opacity: 1 !important;
+        }
+        .floating-heart {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background-image: url('heart.png');
+            background-size: cover;
+            animation: floatUp 5s linear infinite;
+            opacity: 0.7;
+        }
+        @keyframes floatUp {
+            0% {
+                transform: translateY(100vh) scale(0.5);
+                opacity: 0;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-10vh) scale(1);
+                opacity: 0;
+            }
+        }
+        #hkitty {
+            position: fixed;
+            bottom: 10px;
+            right: 0;
+            max-width: auto;
+            height: auto;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+    <h1>💐Complete the Puzzle For A Surprise :) 💐</h1>
+    <div id="puzzle-container"></div>
+    <div id="message-container">
+        <p id="message">EEEEEEK YOUUU DIDD ITT YOUU COMPLETEDD THE PUZZLEE I"M SOO PROUD OF UUU *picks uu uppp and spinss*  love youuu soo muchh booo
+        Tomorrow is valentine's day YAYY soo before valentine's dayy I wanna tell you howw muuchh I love youu and youu matter to meee you are a cutee loveyy doveyy
+    and it would makeee myy wholee yearrr if youuu decide to bee bee my valentinee. Soo, Will you bee my valentine? 🥺🌹</p>
+    </div>
+    <p id="hkitty"><img src="hello kitty.gif" alt="Hello Kitty"></p>  
+    <script>
+        const container = document.getElementById("puzzle-container");
+        const messageContainer = document.getElementById("message-container");
+        let correctOrder = Array.from(Array(9).keys());
+        let pieces = [];
+
+        function createPuzzle() {
+            pieces = [];
+            container.innerHTML = "";
+            let shuffledOrder = [...correctOrder].sort(() => Math.random() - 0.5);
+            shuffledOrder.forEach((index, i) => {
+                let piece = document.createElement("div");
+                piece.classList.add("puzzle-piece");
+                piece.style.backgroundImage = "url('heart.png')";
+                piece.style.backgroundPosition = `-${(index % 3) * 100}px -${Math.floor(index / 3) * 100}px`;
+                piece.draggable = true;
+                piece.dataset.index = index;
+                piece.addEventListener("dragstart", dragStart);
+                piece.addEventListener("dragover", dragOver);
+                piece.addEventListener("drop", drop);
+                pieces.push(piece);
+                container.appendChild(piece);
+            });
+        }
+
+        let draggedPiece = null;
+
+        function dragStart(e) {
+            draggedPiece = e.target;
+        }
+
+        function dragOver(e) {
+            e.preventDefault();
+        }
+
+        function drop(e) {
+            e.preventDefault();
+            if (!draggedPiece || draggedPiece === e.target) return;
+
+            let fromIndex = pieces.indexOf(draggedPiece);
+            let toIndex = pieces.indexOf(e.target);
+            
+            [pieces[fromIndex], pieces[toIndex]] = [pieces[toIndex], pieces[fromIndex]];
+            
+            container.innerHTML = "";
+            pieces.forEach(piece => container.appendChild(piece));
+            
+            checkCompletion();
+        }
+
+        function checkCompletion() {
+            if (pieces.every((p, i) => parseInt(p.dataset.index) === correctOrder[i])) {
+                container.style.opacity = "0";
+                setTimeout(() => {
+                    container.style.display = "none";
+                    messageContainer.classList.add("show-message");
+                }, 1000);
+            }
+        }
+
+        function createFloatingHearts() {
+            for (let i = 0; i < 20; i++) {
+                let heart = document.createElement("div");
+                heart.classList.add("floating-heart");
+                heart.style.left = Math.random() * 100 + "vw";
+                heart.style.animationDuration = (Math.random() * 3 + 3) + "s";
+                document.body.appendChild(heart);
+                setTimeout(() => heart.remove(), 5000);
+            }
+        }
+        setInterval(createFloatingHearts, 1000);
+
+        createPuzzle();
+    </script>
+</body>
+</html>
